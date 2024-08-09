@@ -1,73 +1,135 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Library Management System
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Overview
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+This project is a full-stack web application designed to manage a library's operations, including book borrowing, returning, and member management. The backend is built with NestJS, a progressive Node.js framework, and utilizes TypeORM for database interactions. The frontend is developed using React, with Tailwind CSS for styling. The system also implements logic for managing member penalties for late returns, with configurable grace periods and penalties.
 
-## Description
+### Key features include:
+- CRUD Operations: Manage books, members, and borrowing records.
+- Penalty Management: Automatically apply penalties to members for late book returns, configurable through environment variables.
+- Real-time Data Display: Frontend dashboard showing the status of books and members.
+- API Documentation: Integrated with Swagger to provide interactive API documentation.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### Technologies Used:
 
-## Installation
+- Backend: NestJS, TypeORM
+- Frontend: React, Tailwind CSS
+- Database: MySQL
+- API Documentation: Swagger
 
-```bash
-$ npm install
-```
+## Swagger
+![Schema](ss/swagger.png)
 
-## Running the app
+## Dashboard
+![Schema](ss/dashboard.png)
 
-```bash
-# development
-$ npm run start
 
-# watch mode
-$ npm run start:dev
+## Requirements
+- Node.js (>=14.x)
+- MySQL (>=5.7)
+- Docker (optional, for containerized setup)
 
-# production mode
-$ npm run start:prod
-```
 
-## Test
+
+## Installation Backend
+
+### 1. Clone the repository
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+ git clone https://github.com/putra-asmarjoe/BookManager.git
+ cd BookManager
 ```
 
-## Support
+### 2. Install dependencies 
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+npm install
+```
 
-## Stay in touch
+### 3. Set up database
+Create the MySQL database `librarybook` and grant necessary permissions to the user specified in your .env file (MYSQL_USER).
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+
+### 4. Set up environment variables
+#### Create a `.env` file in the root directory with the following variables:
+
+```bash
+touch .env
+```
+
+```makefile
+PORT=3881
+DB_HOST=localhost
+DB_PORT=3307
+DB_USERNAME=root
+DB_PASSWORD=yourdbpassword
+DB_DATABASE=librarybook
+
+PENALTY_PERIOD_DAYS=3
+OVERDUE_PERIOD_DAYS=7
+MAX_MEMBER_BORROW=2
+
+WL_ORIGIN=http://localhost:3880
+```
+Make sure to adjust DB_USERNAME and DB_PASSWORD to match your MySQL credentials.
+
+## Usage
+
+### Manual
+
+```bash
+npm start
+```
+
+
+## Installation Frontend
+
+### 1. Move to frontend directory
+
+```bash
+ cd dashboard/
+```
+
+### 2. Install dependencies 
+
+```bash
+npm install
+```
+
+### 3. Set up environment variables
+#### Create a `.env` file in the root directory with the following variables:
+
+```bash
+touch .env
+```
+
+```makefile
+PORT=3880
+REACT_APP_API_HOST=http://127.0.0.1:3881/
+```
+Make sure to adjust PORT of your backend
+
+## Usage
+
+### Manual
+
+```bash
+npm start
+```
+
+### Run with Docker Compose
+ #### Alternatively, you can use Docker Compose to run in a single command:
+ ```bash
+ docker-compose -f docker-compose.yml up -d --build
+ ```
+
+## Access the Application
+```
+Swagger Api: http://127.0.0.1:3881/api (Included ALGORITMA test)
+Dashboard App: http://127.0.0.1:3880/
+```
+
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

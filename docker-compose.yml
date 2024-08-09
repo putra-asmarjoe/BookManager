@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:latest
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: vBxCghtvQ9
+      MYSQL_DATABASE: librarybook
+      MYSQL_USER: libbook
+      MYSQL_PASSWORD: pBxCghk9e0
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build: .
+    container_name: libbook_backend
+    ports:
+      - "3881:3000"
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USERNAME: libbook
+      DB_PASSWORD: pBxCghk9e0
+      DB_DATABASE: librarybook      
+      PENALTY_PERIOD_DAYS: 3
+      OVERDUE_PERIOD_DAYS: 7
+      MAX_MEMBER_BORROW: 2      
+      WL_ORIGIN: http://localhost:3880
+      
+    depends_on:
+      - db
+      
+  frontend:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    ports:
+      - "3880:80"
+    environment:
+      - PORT=3880
+      - REACT_APP_API_HOST=http://127.0.0.1:3000/
+      
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
