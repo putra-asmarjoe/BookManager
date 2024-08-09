@@ -1,13 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThan, IsNull, Not } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { Borrow } from './borrow.entity';
 import { Member } from '../member/member.entity';
 import { Book } from '../book/book.entity';
 import { CreateBorrowDto } from './borrow.dto';
+
 const overduePeriodDays = parseInt(process.env.OVERDUE_PERIOD_DAYS, 10) || 7;
 const penaltyPeriodDays = parseInt(process.env.PENALTY_PERIOD_DAYS, 10) || 3;
 const maxMemberBorrowBooks = parseInt(process.env.MAX_MEMBER_BORROW, 10) || 32;
+
 @Injectable()
 export class BorrowService {
   constructor(
@@ -24,10 +26,16 @@ export class BorrowService {
   }
 
   async findOne(id: number): Promise<Borrow> {
-    return this.borrowsRepository.findOne({
+    const borrow = await this.borrowsRepository.findOne({
       where: { id },
       relations: ['member', 'book'],
     });
+
+    if (!borrow) {
+      throw new NotFoundException(`Borrow with ID ${id} not found`);
+    }
+
+    return borrow;
   }
 
   async create(createBorrowDto: CreateBorrowDto): Promise<Borrow> {
@@ -60,11 +68,21 @@ export class BorrowService {
       );
     }
 
+    const penaltyEndDate = new Date(member.penaltyEndDate);
+    penaltyEndDate.setHours(0, 0, 0, 0);
     // Check if the member is currently penalized
-    if (member.penalty > 0 && new Date(member.penaltyEndDate) > new Date()) {
-      throw new NotFoundException(
-        'Member is currently penalized and cannot borrow books',
-      );
+    if (member.penalty > 0) {
+      if (penaltyEndDate >= borrowDateObject) {
+        const formattedPenaltyEndDate = penaltyEndDate.toLocaleDateString('id-ID', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          });
+      
+          throw new NotFoundException(
+            `Member is currently penalized and cannot borrow books. The member can borrow books again after ${formattedPenaltyEndDate}.`,
+          );
+      }
     }
 
     // Check if the member has already borrowed 2 books
@@ -87,6 +105,16 @@ export class BorrowService {
 
     if (isBookBorrowed) {
       throw new NotFoundException('Book is already borrowed by member');
+    }
+
+    // Check if the member is currently penalized
+    if (member.penalty > 0) {
+      // Remove penalty for the member if passed to borrow
+
+      member.penalty = 0;
+      member.penaltyEndDate = new Date('2023-01-01T08:00:00');
+
+      await this.membersRepository.save(member);
     }
 
     const borrow = this.borrowsRepository.create({ member, book, borrowDate });

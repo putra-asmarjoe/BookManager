@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel} from '@headlessui/react'
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import Alert from './Alert';
 
 const apiHost = process.env.REACT_APP_API_HOST;
@@ -25,9 +26,10 @@ const BorrowModal = ({ isOpen, onClose, borrow, onSave }) => {
       } catch (error) {
         setAlert({
           type: 'error',
-          message: 'Gagal mengambil data',
+          message: 'Failed to fetch data.',
           visible: true,
         });
+        toast.error('Failed to fetch data.');
       }
     };
 
@@ -36,7 +38,7 @@ const BorrowModal = ({ isOpen, onClose, borrow, onSave }) => {
 
   useEffect(() => {
     if (isOpen) {
-        setAlert({ ...alert, visible: false })
+      setAlert({ type: '', message: '', visible: false });
       const today = new Date().toISOString().split('T')[0];
       setBorrowDate(today);
       
@@ -47,7 +49,7 @@ const BorrowModal = ({ isOpen, onClose, borrow, onSave }) => {
       setSelectedBook(borrow.bookId);
       setBorrowDate(new Date(borrow.borrowDate).toISOString().split('T')[0]);
     }
-  }, [isOpen, borrow, alert]);
+  }, [isOpen, borrow]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,17 +70,11 @@ const BorrowModal = ({ isOpen, onClose, borrow, onSave }) => {
             bookId: selectedBook,
             borrowDate,
           });
-      setAlert({
-        type: 'success',
-        message: 'Borrowing data has been successfully saved!',
-        visible: true,
-      });
+          
       onSave();
+      onClose();
       
-      setTimeout(() => {
-        onClose();
-      }, 1000); 
-      
+      toast.success('Borrowing data has been successfully saved!');
       
     } catch (error) {
       if (error.response) {
@@ -110,15 +106,8 @@ const BorrowModal = ({ isOpen, onClose, borrow, onSave }) => {
           className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in sm:my-8 sm:w-full sm:max-w-lg data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
         >
           <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-          
-               
-
-        
         <div className="mt-2">
         <h2 className="text-xl font-bold mb-4">Borrow Book</h2>
-        
-                
-
         <form onSubmit={handleSubmit}>
        
           <label className="block mb-4">
@@ -126,7 +115,7 @@ const BorrowModal = ({ isOpen, onClose, borrow, onSave }) => {
             <select
               value={selectedMember}
               onChange={(e) => setSelectedMember(e.target.value)}
-              className="form-select mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+              className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
               required
             >
               <option value="">Select a member</option>
@@ -142,7 +131,7 @@ const BorrowModal = ({ isOpen, onClose, borrow, onSave }) => {
             <select
               value={selectedBook}
               onChange={(e) => setSelectedBook(e.target.value)}
-              className="form-select mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+              className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
               required
             >
               <option value="">Select a book</option>
@@ -153,6 +142,8 @@ const BorrowModal = ({ isOpen, onClose, borrow, onSave }) => {
               ))}
             </select>
           </label>
+          
+           
           <label className="block mb-4">
             <span className="text-gray-700">Borrow Date</span>
             <input

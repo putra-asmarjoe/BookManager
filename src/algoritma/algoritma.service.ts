@@ -13,7 +13,7 @@ export class AlgoritmaService {
     let longest = '';
 
     for (const word of words) {
-      if (word.length > longest.length) {
+      if (word.length >= longest.length) {
         longest = word;
       }
     }

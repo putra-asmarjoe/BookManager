@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-} from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, NotFoundException } from '@nestjs/common';
 import { BorrowService } from './borrow.service';
 import { CreateBorrowDto, UpdateBorrowDto, BorrowDto } from './borrow.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -34,8 +26,12 @@ export class BorrowController {
     description: 'The borrow record',
     type: BorrowDto,
   })
-  getBorrow(@Param('id') id: number) {
-    return this.borrowService.findOne(id);
+  async getBorrow(@Param('id') id: number) {
+    const borrow = await this.borrowService.findOne(id);
+    if (!borrow) {
+      throw new NotFoundException(`Borrow record with ID ${id} not found`);
+    }
+    return borrow;
   }
 
   @Post()
